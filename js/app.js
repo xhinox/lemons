@@ -4,10 +4,9 @@ const context = canvas.getContext("2d");
 
 const frameCount = 148;
 const currentFrame = (index) => {
-  const url = `http://127.0.0.1:5500/images/x-ray/${index
+  const url = `http://localhost:5500/images/x-ray/${index
     .toString()
     .padStart(4, "0")}-min.jpg`;
-  console.log(url);
   return url;
 };
 
