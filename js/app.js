@@ -1,43 +1,48 @@
-// FIRST SECTION
-const intro = document.querySelector(".intro");
-const video = intro.querySelector("video");
-const title = intro.querySelector("h1");
-// END SECTION
+const html = document.documentElement;
+const canvas = document.getElementById("hero-lightpass");
+const context = canvas.getContext("2d");
 
-// SECOND SECTION
-const section = document.querySelector("section");
-const secondTitle = section.querySelector("h2");
-// END SECTION
+const frameCount = 148;
+const currentFrame = (index) => {
+  const url = `http://127.0.0.1:5500/images/x-ray/${index
+    .toString()
+    .padStart(4, "0")}-min.jpg`;
+  console.log(url);
+  return url;
+};
 
-// SCROLL MAGIC
-const controller = new ScrollMagic.Controller();
+const preloadImages = () => {
+  for (let i = 1; i < frameCount; i++) {
+    const img = new Image();
+    img.src = currentFrame(i);
+  }
+};
 
-// SCENES
-const scene = new ScrollMagic.Scene({
-  duration: 4000,
-  triggerElement: intro,
-  triggerHook: 0,
-})
-  .addIndicators()
-  .setPin(intro)
-  .addTo(controller);
+const img = new Image();
+img.src = currentFrame(1);
 
-// VIDEO animation
-let accelamount = 0.1;
-let scrollpos = 0;
-let delay = 0;
+canvas.width = 1920;
+canvas.height = 1080;
 
-scene.on("update", (e) => {
-  scrollpos = e.scrollPos / 1000;
+img.onload = function () {
+  context.drawImage(img, 0, 0);
+};
+
+const updateImage = (index) => {
+  img.src = currentFrame(index);
+  context.drawImage(img, 0, 0);
+};
+
+window.addEventListener("scroll", () => {
+  const scrollTop = html.scrollTop;
+  const maxScrollTop = html.scrollHeight - window.innerHeight;
+  const scrollFraction = scrollTop / maxScrollTop;
+  const frameIndex = Math.min(
+    frameCount - 1,
+    Math.ceil(scrollFraction * frameCount)
+  );
+
+  requestAnimationFrame(() => updateImage(frameIndex + 1));
 });
 
-setInterval(() => {
-  delay += (scrollpos - delay) * accelamount;
-  video.currentTime = delay;
-}, 33.3);
-
-/*
-nota: 33.3 es el framerate al que el video correo
-si el video corre a 30 fps, seria: 1000 (1seg) / 30 (fps) == 33.33333333
-si el video correo a 24 fps, seria: 1000 / 24 = 41.666666667
-*/
+preloadImages();
